@@ -1,15 +1,14 @@
-name: Terraform Deploy
+name: Terraform Destroy
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # Manual trigger button
 
 jobs:
-  terraform:
+  destroy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -18,13 +17,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
       - name: Terraform Init
-        run: terraform init -input=false
+        run: terraform init
         working-directory: terraform
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
         working-directory: terraform
