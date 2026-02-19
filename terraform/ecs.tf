@@ -8,6 +8,7 @@ resource "aws_ecs_task_definition" "strapi" {
   network_mode             = "awsvpc"
   cpu                      = "512"
   memory                   = "1024"
+
   execution_role_arn = "arn:aws:iam::811738710312:role/ecs_fargate_taskRole"
   task_role_arn      = "arn:aws:iam::811738710312:role/ecs_fargate_taskRole"
 
@@ -20,6 +21,34 @@ resource "aws_ecs_task_definition" "strapi" {
       portMappings = [
         {
           containerPort = 1337
+          protocol      = "tcp"
+        }
+      ]
+
+      environment = [
+        {
+          name  = "HOST"
+          value = "0.0.0.0"
+        },
+        {
+          name  = "PORT"
+          value = "1337"
+        },
+        {
+          name  = "APP_KEYS"
+          value = "key1,key2,key3,key4"
+        },
+        {
+          name  = "API_TOKEN_SALT"
+          value = "randomApiSalt123"
+        },
+        {
+          name  = "ADMIN_JWT_SECRET"
+          value = "superAdminSecret123"
+        },
+        {
+          name  = "JWT_SECRET"
+          value = "superJwtSecret123"
         }
       ]
 
