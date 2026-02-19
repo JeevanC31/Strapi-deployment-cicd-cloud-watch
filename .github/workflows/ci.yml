@@ -10,7 +10,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      ECR_REPOSITORY: strapi-repo
+      ECR_REPOSITORY: strapi-repo-jeev
       ACCOUNT_ID: 811738710312
 
     steps:
