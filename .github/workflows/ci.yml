@@ -2,28 +2,39 @@ name: CI - Build & Push
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    env:
+      AWS_REGION: us-east-1
+      ECR_REPOSITORY: strapi-repo
+      ACCOUNT_ID: 811738710312
 
-      - uses: aws-actions/configure-aws-credentials@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to ECR
+      - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region us-east-1 \
-          | docker login --username AWS --password-stdin $(aws ecr describe-repositories --query "repositories[0].repositoryUri" --output text)
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-      - name: Build & Push
+      - name: Build Docker image
         run: |
-          docker build -t strapi ./strapi-app
-          docker tag strapi:latest $(aws ecr describe-repositories --query "repositories[0].repositoryUri" --output text):latest
-          docker push $(aws ecr describe-repositories --query "repositories[0].repositoryUri" --output text):latest
+          docker build -t $ECR_REPOSITORY ./strapi-app
+          docker tag $ECR_REPOSITORY:latest \
+          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
+
+      - name: Push Docker image
+        run: |
+          docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:latest
